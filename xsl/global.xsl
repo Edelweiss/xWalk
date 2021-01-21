@@ -6,7 +6,6 @@
   xmlns:my="http://local"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fm="http://www.filemaker.com/fmpxmlresult"
-  xmlns:date="http://exslt.org/dates-and-times"
   xmlns="http://www.tei-c.org/ns/1.0">
 
 <!-- 
@@ -31,7 +30,7 @@ templates
   <xsl:param name="fileRepository" select="'../data/master'"  as="xs:string"/> <!-- path to readonly idp.data repository OXYGEN!!! -->
   <xsl:param name="fileMentionedDates" select="'../data/master/HGV_metadata/XML_dump/MentionedDates.xml'"  as="xs:string"/> <!-- mentioned dates lookup file -->
   <xsl:param name="fileNomeList" select="'../data/master/HGV_metadata/XML_dump/nomeList.xml'"  as="xs:string"/> <!-- nome list lookup file -->
-  <xsl:param name="outputPath" select="'../data/xwalk/HGV_meta_EpiDoc'"  as="xs:string"/> <!-- output path on server -->
+  <xsl:param name="outputPath" select="'../xwalk/HGV_meta_EpiDoc'"  as="xs:string"/> <!-- output path on server -->
   <xsl:param name="placeRef" select="'../data/placeRef.xml'"  as="xs:string"/>
   <xsl:param name="hgvId" select="'../data/hgvId.xml'"  as="xs:string"/>
 

@@ -8,7 +8,6 @@
   xmlns:my="http://local"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fm="http://www.filemaker.com/fmpxmlresult"
-  xmlns:date="http://exslt.org/dates-and-times"
   xmlns:tei="http://www.tei-c.org/ns/1.0"
   xmlns="http://www.tei-c.org/ns/1.0">
 
@@ -127,6 +126,8 @@
 
     <xsl:if test="($process = 'all') or ($process = 'new' and not($idAlreadyExists)) or ($process = 'modified' and $idAlreadyExists)">
       <xsl:message><xsl:value-of select="'TRANSFORM'" /></xsl:message>
+      
+      <xsl:message select="concat('–––––––– ', $outputPath, ' | ', $out-dir, ' | ', $file-id)"></xsl:message>
 
       <xsl:result-document href="{$outputPath}/{$out-dir}/{$file-id}.xml">
         <!--xsl:processing-instruction name="oxygen ">
@@ -296,7 +297,7 @@
                   </change>
                 </xsl:otherwise>
               </xsl:choose>
-              <change when="{string(date:date())}" who="IDP">
+              <change when="{format-date(current-date(), '[Y0001]-[M01]-[D01]')}" who="IDP">
                 <xsl:text>Crosswalked to EpiDoc XML</xsl:text>
               </change>
             </revisionDesc>
