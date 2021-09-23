@@ -18,7 +18,7 @@ def xWalk():
 
     for f in os.listdir(PATH['SPLIT']):
         if not os.path.isdir(f) and not '.svn' in f and not '.git' in f:
-            inFile = inDir + '/' + f # e.g. data/split/HGV27.xml
+            inFile = PATH['SPLIT'] + '/' + f # e.g. data/split/HGV27.xml
             execute('java -Xmx1023m net.sf.saxon.Transform -o:data/intermediate/' + f + ' -s:' + inFile + ' -xsl:' + PATH['XSLT'] + ' process=' + PROCESS)
     print '---------------- EpiDoc conversion complete ----------------'    
 
