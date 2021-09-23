@@ -365,18 +365,6 @@
                   </xsl:choose>
                 </div>
               </xsl:if>
-              
-              <xsl:variable name="Begrundung" select="fm:COL[my:field-pos($doc, 'Begründung')]/fm:DATA"/>
-              <xsl:if test="string($Begrundung) and not($Begrundung = 'not yet entered')">
-                <div type="edition">
-                  <p>
-                    <xsl:text>Kein Text: </xsl:text>
-                    <xsl:if test="string($Begrundung)">
-                      <xsl:value-of select="$Begrundung"/>
-                    </xsl:if>
-                  </p>
-                </div>
-              </xsl:if>
 
               <div type="bibliography" subtype="principalEdition">
                 <listBibl>
