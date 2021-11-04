@@ -3,7 +3,7 @@
 <xsl:stylesheet exclude-result-prefixes="#all" version="2.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:hgv="HGV"
-  xmlns:my="http://local"
+  xmlns:papy="Papyrillio"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fm="http://www.filemaker.com/fmpxmlresult"
   xmlns="http://www.tei-c.org/ns/1.0">
@@ -35,13 +35,13 @@ templates
   <xsl:param name="hgvId" select="'../data/hgvId.xml'"  as="xs:string"/>
 
   <!-- functions -->
-  <xsl:function name="my:space-remove">
+  <xsl:function name="papy:space-remove">
     <xsl:param name="string"/>
     <xsl:value-of select="translate($string, ' ', '')"/>
   </xsl:function>
 
   <!-- Gets the position of the field in the file to be used on the COL below -->
-  <xsl:function name="my:field-pos" as="xs:integer">
+  <xsl:function name="papy:field-pos" as="xs:integer">
     <xsl:param name="doc"/>
     <xsl:param name="field-name"/>
 
@@ -52,7 +52,7 @@ templates
   </xsl:function>
 
   <!-- Formats a number with leading 0s defined by the parameter -->
-  <xsl:function name="my:format-num">
+  <xsl:function name="papy:format-num">
     <xsl:param name="num-val" as="xs:integer"/>
     <xsl:param name="for-num"/>
 
@@ -67,7 +67,7 @@ templates
   </xsl:function>
 
   <!-- Normalizes data so that only numbers are left -->
-  <xsl:function name="my:norm-num">
+  <xsl:function name="papy:norm-num">
     <xsl:param name="num-val"/>
 
     <xsl:analyze-string select="$num-val" regex="([^\d]*)(\d+)([^\d]*)">
@@ -78,7 +78,7 @@ templates
   </xsl:function>
 
   <!-- Defines sub-directory of output -->
-  <xsl:function name="my:dir">
+  <xsl:function name="papy:dir">
     <xsl:param name="cur-dir"/>
     <xsl:param name="cur-rec"/>
 
@@ -156,7 +156,5 @@ templates
       </xsl:attribute>
     </xsl:if>
   </xsl:template>
-
-
 
 </xsl:stylesheet>
