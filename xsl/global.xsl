@@ -25,14 +25,7 @@ templates
   att-jmt(ATT, J, M, T, J2, M2, T2)
 
 -->
-  <!-- parameters -->
-  <xsl:param name="process" select="'all'" as="xs:string"/> <!-- new, modified or all -->
-  <xsl:param name="fileRepository" select="'../data/master'"  as="xs:string"/> <!-- path to readonly idp.data repository OXYGEN!!! -->
-  <xsl:param name="fileMentionedDates" select="'../data/master/HGV_metadata/XML_dump/MentionedDates.xml'"  as="xs:string"/> <!-- mentioned dates lookup file -->
-  <xsl:param name="fileNomeList" select="'../data/master/HGV_metadata/XML_dump/nomeList.xml'"  as="xs:string"/> <!-- nome list lookup file -->
-  <xsl:param name="outputPath" select="'../xwalk/HGV_meta_EpiDoc'"  as="xs:string"/> <!-- output path on server -->
-  <xsl:param name="placeRef" select="'../data/placeRef.xml'"  as="xs:string"/>
-  <xsl:param name="hgvId" select="'../data/hgvId.xml'"  as="xs:string"/>
+  
 
   <!-- functions -->
   <xsl:function name="papy:space-remove">
