@@ -16,7 +16,9 @@
 
   <xsl:output indent="yes" method="xml" />
   <xsl:include href="geo.xsl"/>
-  <xsl:include href="origDate.xsl"/>
+  <xsl:include href="date.xsl"/>
+  <xsl:include href="mentionedDates.xsl"/>
+  <xsl:include href="publication.xsl"/>
   <xsl:include href="global.xsl"/>
   
   <xsl:template name="papy:hgvEpidoc">
@@ -43,27 +45,27 @@
               <xsl:value-of select="replace($hgv, '[^\d]+', '')"/>
             </idno>
             <idno type="ddb-filename">
-              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_ser_idp']"/>
+              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_collection_hybrid']"/>
               <xsl:text>.</xsl:text>
-              <xsl:if test="string($data[1]//tei:cell[@name='ddb_vol'])">
-                <xsl:value-of select="$data[1]//tei:cell[@name='ddb_vol']"/>
+              <xsl:if test="string($data[1]//tei:cell[@name='ddb_volume_number'])">
+                <xsl:value-of select="$data[1]//tei:cell[@name='ddb_volume_number']"/>
                 <xsl:text>.</xsl:text>
               </xsl:if>
-              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_doc']"/>
+              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_document_number']"/>
             </idno>
             <idno type="ddb-hybrid">
-              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_ser_idp']"/>
+              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_collection_hybrid']"/>
               <xsl:text>;</xsl:text>
-              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_vol']"/>
+              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_volume_number']"/>
               <xsl:text>;</xsl:text>
-              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_doc']"/>
+              <xsl:value-of select="$data[1]//tei:cell[@name='ddb_document_number']"/>
             </idno>
           </publicationStmt>
           <sourceDesc>
             <msDesc>
               <msIdentifier>
                 <xsl:choose>
-                  <xsl:when test="string($data[1]//tei:cell[@name='place']) or string($data[1]//tei:cell[@name='collection']) or string($data[1]//tei:cell[@name='inv_no'])">
+                  <xsl:when test="string($data[1]//tei:cell[@name='place']) or string($data[1]//tei:cell[@name='collection']) or string($data[1]//tei:cell[@name='inventory_number'])">
                     <xsl:if test="string($data[1]//tei:cell[@name='place'])">
                       <placeName>
                         <settlement><xsl:value-of select="$data[1]//tei:cell[@name='place']"/></settlement>
@@ -72,8 +74,8 @@
                     <xsl:if test="string($data[1]//tei:cell[@name='collection'])">
                       <collection><xsl:value-of select="$data[1]//tei:cell[@name='collection']"/></collection>
                     </xsl:if>
-                    <xsl:if test="string($data[1]//tei:cell[@name='inv_no'])">
-                      <idno type="invNo"><xsl:value-of select="$data[1]//tei:cell[@name='inv_no']"/></idno>
+                    <xsl:if test="string($data[1]//tei:cell[@name='inventory_number'])">
+                      <idno type="invNo"><xsl:value-of select="$data[1]//tei:cell[@name='inventory_number']"/></idno>
                     </xsl:if>
                   </xsl:when>
                   <xsl:otherwise>
@@ -95,6 +97,7 @@
               <history>
                 <origin>
                   <xsl:call-template name="papy:origPlace">
+                    <xsl:with-param name="provenance" select="$data[1]//tei:cell[@name='provenance']"/>
                     <xsl:with-param name="provenanceType" select="$data[1]//tei:cell[@name='provenance_type']"/>
                     <xsl:with-param name="placeName" select="$data[1]//tei:cell[@name='place_name']"/>
                     <xsl:with-param name="nome" select="$data[1]//tei:cell[@name='nome']"/>
@@ -163,9 +166,9 @@
                     </xsl:call-template>
                   </xsl:for-each>
                 </origin>
-                <!--xsl:call-template name="provenance">
-              <xsl:with-param name="raw" select="$data[1]//tei:cell[@name='provenance']"/>
-            </xsl:call-template--> <!-- cl: Ort -->
+                <xsl:call-template name="papy:provenance">
+                    <xsl:with-param name="raw" select="$data[1]//tei:cell[@name='provenance']"/>
+                </xsl:call-template>
               </history>
             </msDesc>
           </sourceDesc>
@@ -222,12 +225,100 @@
               </p>
             </div>
           </xsl:if>
-          <!--xsl:variable name="mentionedDates" select="$data[1]//tei:cell[@name='mentioned_dates']"/-->
+
+          <xsl:if test="string($data[1]//tei:cell[@name='mentioned_dates'])">
+           <div type="commentary" subtype="mentionedDates">
+                <head>Erwähnte Daten</head>
+           <xsl:for-each select="current-group()"> <!-- retrieve mentioned dates from current record set (X, Y, Z) -->
+                  <note type="original">
+                    <xsl:if test="string(.//tei:cell[@name='multiple_letter'])">
+                      <xsl:attribute name="subtype">
+                        <xsl:value-of select=".//tei:cell[@name='multiple_letter']" />
+                      </xsl:attribute>
+                    </xsl:if>
+                    <xsl:value-of select=".//tei:cell[@name='mentioned_dates']" />
+                  </note>
+                </xsl:for-each>
+                <note type="source">HGV.fp7</note>
+                <list>
+            <xsl:for-each select="current-group()">
+              <xsl:call-template name="papy:parse-mentioned-dates">
+                <xsl:with-param name="mentioned-dates" select=".//tei:cell[@name='mentioned_dates']" />
+                <xsl:with-param name="date-id" select=".//tei:cell[@name='multiple_letter']" />
+            </xsl:call-template>
+            <!--xsl:variable name="mentionedDates" select="$data[1]//tei:cell[@name='mentioned_dates']"/--><!-- cl: mentioned dates-->
+          </xsl:for-each>
+        </list>
+        </div>
+        </xsl:if>
+        <div type="bibliography" subtype="principalEdition">
+          <listBibl>
+            <!-- call to publication template which resides in publication.xsl -->
+            <xsl:call-template name="publication">
+              <xsl:with-param  name="Publikation" select="$data[1]//tei:cell[@name='publication']" />
+              <xsl:with-param  name="Band"        select="$data[1]//tei:cell[@name='volume']" />
+              <xsl:with-param  name="ZusBand"     select="$data[1]//tei:cell[@name='volume_extra']" />
+              <xsl:with-param  name="Nummer"      select="$data[1]//tei:cell[@name='number']" />
+              <xsl:with-param  name="Seite"       select="$data[1]//tei:cell[@name='side']" />
+              <xsl:with-param  name="zusatzlich"  select="$data[1]//tei:cell[@name='number_extra']" />
+            </xsl:call-template>
+          </listBibl>
+        </div>
+
+          <div type="bibliography" subtype="illustrations">
+            <p>
+              <xsl:variable name="Abbildung" select="$data[1]//tei:cell[@name='published_photo']"/>
+              <xsl:choose>
+                <xsl:when test="$Abbildung = 'keine'">
+                  <xsl:text>keine</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:for-each select="tokenize($Abbildung, ';')">
+                    <bibl type="illustration">
+                      <xsl:value-of select="normalize-space(.)"/>
+                    </bibl>
+                  </xsl:for-each>
+                </xsl:otherwise>
+              </xsl:choose>
+            </p>
+          </div>
+
+<xsl:variable name="otherPublications" select="$data[1]//tei:cell[@name='other_publication']"/>
+              <xsl:if test="string($otherPublications)">
+                <div type="bibliography" subtype="otherPublications">
+                  <head>
+                    <xsl:text>Andere Publikation</xsl:text>
+                    <xsl:if test="contains($otherPublications, ';')">
+                      <xsl:text>en</xsl:text>
+                    </xsl:if>
+                  </head>
+                  <xsl:call-template name="list-bibl">
+                    <xsl:with-param name="bibl-raw" select="$otherPublications"/>
+                    <xsl:with-param name="type" select="'A-Pub'"/>
+                  </xsl:call-template>
+                </div>
+              </xsl:if>
+          
+          <xsl:variable name="imageLink" select="$data[1]//tei:cell[@name='image_link']"/>
+          <xsl:if test="string($imageLink)">
+            <div type="figure">
+              <p>
+                <xsl:for-each select="tokenize($imageLink, ' ')">
+                  <xsl:if test="string(.)">
+                    <figure>
+                      <!--graphic url="{replace(replace(., $amp, '&amp;'), ' ', '%20')}"/-->
+                      <graphic url="{.}"/>
+                    </figure>
+                  </xsl:if>
+                </xsl:for-each>
+              </p>
+            </div>
+          </xsl:if>
         </body>
       </text>
     </TEI>
   </xsl:template>
-  
+
   <xsl:template name="J-test">
     <xsl:param name="J-val"/>
     <xsl:if test="string(normalize-space($J-val))">
@@ -237,18 +328,17 @@
       <xsl:value-of select="papy:format-num(papy:norm-num($J-val), '4')"/>
     </xsl:if>
   </xsl:template>
-  
+
   <xsl:template name="MT-test">
     <xsl:param name="MT-val"/>
     <xsl:if test="string(normalize-space($MT-val))">
       <xsl:value-of select="papy:format-num(papy:norm-num($MT-val), '2')"/>
     </xsl:if>
   </xsl:template>
-  
+
   <xsl:template name="att-nB-nA">
     <xsl:param name="chron-min"/>
     <xsl:param name="chron-max"/>
-    
     <xsl:if test="matches($chron-min, '-?\d{4}(-\d{2}(-\d{2})?)?')">
       <xsl:attribute name="notBefore">
         <xsl:value-of select="$chron-min"/>
@@ -259,7 +349,6 @@
         <xsl:value-of select="$chron-max"/>
       </xsl:attribute>
     </xsl:if>
-    
   </xsl:template>
 
   <xsl:template name="papy:changeLog">
@@ -278,5 +367,6 @@
       </change>
     </xsl:if>
   </xsl:template>
+
 
 </xsl:stylesheet>

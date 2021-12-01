@@ -16,7 +16,7 @@
 
     <!--
 
-java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:HGV.xml -it:FODS -xsl:xsl/xWalk.xsl HGV=data/HGV.fods > xWalk 2>&1
+java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:data/HGV.xml -it:FODS -xsl:xsl/xWalk.xsl PROCESS=all > xWalk 2>&1
 
 -->
     <xsl:include href="../papyX/helper.xsl"/>
@@ -26,12 +26,9 @@ java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:HGV.xml -it:FODS -xsl:xsl/x
 
     <!-- parameters -->
 
-    <xsl:param name="fileRepository" select="'../data/idp.data/papyri/master'"  as="xs:string"/> <!-- path to readonly idp.data repository OXYGEN!!! -->
-    <xsl:param name="fileMentionedDates" select="'../data/idp.data/papyri/master/HGV_metadata/XML_dump/MentionedDates.xml'"  as="xs:string"/> <!-- mentioned dates lookup file -->
-    <xsl:param name="fileNomeList" select="'../data/idp.data/papyri/master/HGV_metadata/XML_dump/nomeList.xml'"  as="xs:string"/> <!-- nome list lookup file -->
-    <xsl:param name="outputPath" select="'../xwalk/HGV_meta_EpiDoc'"  as="xs:string"/> <!-- output path on server -->
-    <xsl:param name="placeRef" select="'../data/placeRef.xml'"  as="xs:string"/>
-    <xsl:param name="hgvId" select="'../data/hgvId.xml'"  as="xs:string"/>
+    <!--xsl:param name="fileRepository" select="'../data/idp.data/papyri/master'"  as="xs:string"/--> <!-- path to readonly idp.data repository OXYGEN!!! -->
+    <!--xsl:param name="fileMentionedDates" select="'../data/idp.data/papyri/master/HGV_metadata/XML_dump/MentionedDates.xml'"  as="xs:string"/--> <!-- mentioned dates lookup file -->
+    <!--xsl:param name="outputPath" select="'../xwalk/HGV_meta_EpiDoc'"  as="xs:string"/--> <!-- output path on server -->
 
     <xsl:param name="PROCESS" select="'all'"/> <!-- new|modified|all -->
     <xsl:param name="DATA_DIRECTORY" select="'../data'"/>
@@ -39,16 +36,21 @@ java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:HGV.xml -it:FODS -xsl:xsl/x
     <xsl:param name="IDP_XWALK" select="concat($DATA_DIRECTORY, '/idp.data/papyri/xWalk')"/>
     <xsl:param name="FODS_DOCUMENT" select="concat($DATA_DIRECTORY, '/HGV.fods')"/>
     <xsl:param name="FODS_TABLE" select="'hgv'"/>
-    <!--xsl:param name="HEADER_LINE" select="3"/>
-    <xsl:param name="DATA_LINE" select="4"/-->
+    
+    <xsl:param name="fileNomeList" select="concat($IDP_MASTER, '/HGV_metadata/XML_dump/nomeList.xml')"  as="xs:string"/> <!-- nome list lookup file -->
+    <xsl:param name="placeRef" select="'../data/placeRef.xml'"  as="xs:string"/>
+    <xsl:param name="hgvId" select="'../data/hgvId.xml'"  as="xs:string"/>
 
     <xsl:variable name="HGV" select="doc($FODS_DOCUMENT)"/>
+
     <xsl:variable name="HEADER_LINE" as="xs:integer">
       <xsl:value-of select="count($HGV//table:table[@table:name=$FODS_TABLE]//table:table-cell[normalize-space(.) = 'hgv_id']/ancestor::table:table-row/preceding-sibling::table:table-row) + 1"/>
     </xsl:variable>
+
     <xsl:variable name="DATA_LINE" as="xs:integer">
       <xsl:value-of select="$HEADER_LINE + 1"/>
     </xsl:variable>
+
     <xsl:variable name="INDEX">
         <list>
             <xsl:for-each select="$HGV//table:table[@table:name=$FODS_TABLE]/table:table-row[$HEADER_LINE]/table:table-cell">
@@ -58,6 +60,7 @@ java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:HGV.xml -it:FODS -xsl:xsl/x
             </xsl:for-each>
         </list>
     </xsl:variable>
+
     <xsl:variable name="DATA">
         <table>
             <xsl:for-each select="$HGV//table:table[@table:name=$FODS_TABLE]/table:table-row[position() &gt;= $DATA_LINE]">
@@ -107,25 +110,21 @@ java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:HGV.xml -it:FODS -xsl:xsl/x
             <xsl:if test="matches($hgv, '^\d+[a-z]*[XYZ]?$')">
                 <xsl:if test="($PROCESS = 'all') or ($PROCESS = 'new' and not($idAlreadyExists)) or ($PROCESS = 'modified' and $idAlreadyExists)">
 
-                    <xsl:variable name="outputFile" select="concat('../data/xwalk/', papy:hgvFilePath($hgv))"/>
-                    
-                    
-                    <xsl:message select="concat($hgv, ' / ', if($idAlreadyExists)then 'modified' else 'new')"></xsl:message>
+                    <xsl:variable name="outputFile" select="concat($IDP_XWALK, '/', papy:hgvFilePath($hgv))"/>
+                    <xsl:variable name="status" select="if($idAlreadyExists)then 'modified' else 'new'"/>
+
+                    <xsl:message select="concat($hgv, ' / ', $status)"></xsl:message>
                     <xsl:message select="$outputFile"></xsl:message>
                     <xsl:message select="count(current-group())"></xsl:message>
-                    <!--xsl:result-document href="{$outputFile}">
-                    
-                </xsl:result-document-->
-                    <xsl:call-template name="papy:hgvEpidoc">
-                        <xsl:with-param name="hgv" select="$hgv"/>
-                        <xsl:with-param name="data" select="current-group()"/>
-                        <xsl:with-param name="originalRevisionDesc" select="if ($idAlreadyExists) then doc(concat($IDP_MASTER, '/HGV_meta_EpiDoc/', $idAlreadyExists))//tei:revisionDesc else () "/>
-                    </xsl:call-template>
+                    <!--xsl:result-document href="{$outputFile}"-->
+                        <xsl:call-template name="papy:hgvEpidoc">
+                            <xsl:with-param name="hgv" select="$hgv"/>
+                            <xsl:with-param name="data" select="current-group()"/>
+                            <xsl:with-param name="originalRevisionDesc" select="if ($idAlreadyExists) then doc(concat($IDP_MASTER, '/HGV_meta_EpiDoc/', $idAlreadyExists))//tei:revisionDesc else () "/>
+                        </xsl:call-template>
+                    <!--/xsl:result-document-->                    
                 </xsl:if>
             </xsl:if>
         </xsl:for-each-group>
-    </xsl:template>
-
-    <xsl:template name="index">
     </xsl:template>
 </xsl:stylesheet>

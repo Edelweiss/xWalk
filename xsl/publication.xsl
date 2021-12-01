@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet  exclude-result-prefixes="#all" version="2.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:hgv="HGV"
+  xmlns:papy="Papyrillio"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:my="http://local"
   xmlns:fm="http://www.filemaker.com/fmpxmlresult" xmlns:date="http://exslt.org/dates-and-times"
   xmlns:common="http://exslt.org/common"
@@ -88,6 +88,44 @@
       </xsl:if>
     </bibl>
 
+  </xsl:template>
+
+  <xsl:template name="list-bibl">
+    <xsl:param name="bibl-raw"/>
+    <xsl:param name="type"/>
+
+      <xsl:if test="string($bibl-raw)">
+        <listBibl>
+          <xsl:for-each select="tokenize($bibl-raw, ';')">
+            <xsl:call-template name="bibl-test">
+              <xsl:with-param name="cur-bibl" select="normalize-space(.)"/>
+              <xsl:with-param name="type" select="$type"/>
+            </xsl:call-template>
+          </xsl:for-each>
+        </listBibl>
+       </xsl:if>
+  </xsl:template>
+  
+  <xsl:template name="bibl-test">
+    <xsl:param name="cur-bibl"/>
+    <xsl:param name="type"/>
+    <xsl:choose>
+      <xsl:when test="$type = 'BL'">
+        <bibl type="BL">
+          <biblScope type="volume">
+            <xsl:value-of select="substring-before($cur-bibl, ',')"/>
+          </biblScope>
+          <biblScope type="pages">
+            <xsl:value-of select="substring-after($cur-bibl, 'S. ')"/>
+          </biblScope>
+        </bibl>
+      </xsl:when>
+      <xsl:when test="$type = 'A-Pub'">
+        <bibl type="publication" subtype="other">
+          <xsl:value-of select="$cur-bibl"/>
+        </bibl>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>

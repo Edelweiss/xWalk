@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:hgv="HGV"
+  xmlns:papy="Papyrillio"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:my="http://local"
   xmlns:fm="http://www.filemaker.com/fmpxmlresult" xmlns:date="http://exslt.org/dates-and-times"
   xmlns:common="http://exslt.org/common"
@@ -9,7 +9,7 @@
 <!-- 
 
 functions
-  hgv:make-iso-date(christ, year, month, day)
+  papy:make-iso-date(christ, year, month, day)
 
 templates
   parse-mentioned-dates(mentioned-dates, date-id) # split by ; and ,
@@ -18,7 +18,7 @@ templates
   parse-date(raw)
 -->
 
-<xsl:function name="hgv:make-iso-date"><!-- returns an iso-like date format, e.g. »-0138-07-21« -->
+<xsl:function name="papy:make-iso-date"><!-- returns an iso-like date format, e.g. »-0138-07-21« -->
   <xsl:param name="christ"/><!-- calendar era BC or AD, designated by their German equivalents »v.Chr.« or »n.Chr.« -->
   <xsl:param name="year"/><!-- number, e.g. »138« -->
   <xsl:param name="month"/><!-- abbreviated German month name, e.g. »Jul.« -->
@@ -47,11 +47,10 @@ templates
 
 </xsl:function>
 
-<xsl:template name="parse-mentioned-dates">
+<xsl:template name="papy:parse-mentioned-dates">
   <xsl:param name="mentioned-dates" /> <!-- mentioned dates string from HGV Filemaker database to be parsed -->
   <xsl:param name="date-id" /> <!-- X, Y, Z -->  
-  
-  
+
   <xsl:choose>
     <xsl:when test="$mentioned-dates = 'Zur Datierung vgl. BL X, S. 259.'">
       <item><note type="annotation">Zur Datierung vgl. BL X, S. 259</note></item>
@@ -475,8 +474,8 @@ templates
   <xsl:variable name="day2" select="$td" />
   <xsl:variable name="christ2" select="$tc" />
 
-  <xsl:variable name="iso-date" select="hgv:make-iso-date($christ, $year, $month, $day)" />
-  <xsl:variable name="iso-date2" select="hgv:make-iso-date($christ2, $year2, $month2, $day2)" />
+  <xsl:variable name="iso-date" select="papy:make-iso-date($christ, $year, $month, $day)" />
+  <xsl:variable name="iso-date2" select="papy:make-iso-date($christ2, $year2, $month2, $day2)" />
   <xsl:variable name="date-types">
     <xsl:choose>
       <xsl:when test="$iso-date and $iso-date2">
