@@ -34,6 +34,7 @@ place FODS file in the data directory of the xWalk project and run script
 
 * download file as CSV from Google Sheets
 * open CVS with LibreOffice
+* make sure the tab containing the data is called ```hgv```
 * save as FODS file
 * move FODS file to xWalk/data/HGV.fods
 * run xWalk script ```./xWalk.sh```
