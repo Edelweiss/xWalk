@@ -26,22 +26,29 @@ java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:HGV.xml -it:FODS -xsl:xsl/x
 
     <!-- parameters -->
 
-    <xsl:param name="fileRepository" select="'../data/master'"  as="xs:string"/> <!-- path to readonly idp.data repository OXYGEN!!! -->
-    <xsl:param name="fileMentionedDates" select="'../data/master/HGV_metadata/XML_dump/MentionedDates.xml'"  as="xs:string"/> <!-- mentioned dates lookup file -->
-    <xsl:param name="fileNomeList" select="'../data/master/HGV_metadata/XML_dump/nomeList.xml'"  as="xs:string"/> <!-- nome list lookup file -->
+    <xsl:param name="fileRepository" select="'../data/idp.data/papyri/master'"  as="xs:string"/> <!-- path to readonly idp.data repository OXYGEN!!! -->
+    <xsl:param name="fileMentionedDates" select="'../data/idp.data/papyri/master/HGV_metadata/XML_dump/MentionedDates.xml'"  as="xs:string"/> <!-- mentioned dates lookup file -->
+    <xsl:param name="fileNomeList" select="'../data/idp.data/papyri/master/HGV_metadata/XML_dump/nomeList.xml'"  as="xs:string"/> <!-- nome list lookup file -->
     <xsl:param name="outputPath" select="'../xwalk/HGV_meta_EpiDoc'"  as="xs:string"/> <!-- output path on server -->
     <xsl:param name="placeRef" select="'../data/placeRef.xml'"  as="xs:string"/>
     <xsl:param name="hgvId" select="'../data/hgvId.xml'"  as="xs:string"/>
 
-
     <xsl:param name="PROCESS" select="'all'"/> <!-- new|modified|all -->
-    <xsl:param name="IDP_MASTER" select="'../data/master'"/>
+    <xsl:param name="DATA_DIRECTORY" select="'../data'"/>
+    <xsl:param name="IDP_MASTER" select="concat($DATA_DIRECTORY, '/idp.data/papyri/master')"/>
+    <xsl:param name="IDP_XWALK" select="concat($DATA_DIRECTORY, '/idp.data/papyri/xWalk')"/>
+    <xsl:param name="FODS_DOCUMENT" select="concat($DATA_DIRECTORY, '/HGV.fods')"/>
     <xsl:param name="FODS_TABLE" select="'hgv'"/>
-    <xsl:param name="FODS_DOCUMENT" select="'../data/HGV.fods'"/>
-    <xsl:param name="HEADER_LINE" select="3"/>
-    <xsl:param name="DATA_LINE" select="5"/>
+    <!--xsl:param name="HEADER_LINE" select="3"/>
+    <xsl:param name="DATA_LINE" select="4"/-->
 
     <xsl:variable name="HGV" select="doc($FODS_DOCUMENT)"/>
+    <xsl:variable name="HEADER_LINE" as="xs:integer">
+      <xsl:value-of select="count($HGV//table:table[@table:name=$FODS_TABLE]//table:table-cell[normalize-space(.) = 'hgv_id']/ancestor::table:table-row/preceding-sibling::table:table-row) + 1"/>
+    </xsl:variable>
+    <xsl:variable name="DATA_LINE" as="xs:integer">
+      <xsl:value-of select="$HEADER_LINE + 1"/>
+    </xsl:variable>
     <xsl:variable name="INDEX">
         <list>
             <xsl:for-each select="$HGV//table:table[@table:name=$FODS_TABLE]/table:table-row[$HEADER_LINE]/table:table-cell">
@@ -80,11 +87,20 @@ java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:HGV.xml -it:FODS -xsl:xsl/x
         <xsl:sequence select="document($hgvId)/hgv:data/hgv:id"/>
     </xsl:variable>
 
-    <xsl:template name="FODS">
+    <xsl:template name="TEST">
+        <xsl:message select="'––––'"/>
+        <xsl:message select="concat('header line:', '&#09;', $HEADER_LINE)"/>
+        <xsl:message select="concat('data line:', '&#09;', $DATA_LINE)"/>
+        <xsl:message select="'––––'"/>
         <xsl:for-each select="$INDEX//tei:item">
-            <xsl:message select="concat(@column, '    ', @name)"/>
+            <xsl:message select="concat(@column, '&#09;', @name)"/>
         </xsl:for-each>
+        <xsl:message select="'––––'"/>
         <!--xsl:message select="$DATA"/-->
+    </xsl:template>
+
+    <xsl:template name="FODS">
+        <xsl:call-template name="TEST"/>
         <xsl:for-each-group select="$DATA//tei:row" group-by="tei:cell[@name='hgv_id']">
             <xsl:variable name="hgv" select="current-grouping-key()"/>
             <xsl:variable name="idAlreadyExists" select="$hgv-ids/hgv:id[text() = $hgv]/@file" />
