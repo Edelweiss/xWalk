@@ -1,9 +1,6 @@
 # xWalk
 
-## CSV
-
-### ⚙ setup
-
+## ⚙ setup
 
 * You need…
   * GIT
@@ -31,19 +28,42 @@ ln -s ~/data/idp.data
 
 ```
 
-## invoke script
+## ⚙ ⚙ invoke script
 
-update git repositories XXXX
+place FODS file in the data directory of the xWalk project and run script
+
+* download file as CSV from Google Sheets
+* open CVS with LibreOffice
+* save as FODS file
+* move FODS file to xWalk/data/HGV.fods
+* run xWalk script ```./xWalk.sh```
+
+The xWalk script peforms the following actions, which can also be started manually:
+
+(1) update git repository branches papyri/master and papyri/xWalk
 
 ```bash
+cd xWalk
+cd data/idp.data/papyri/master
 git fetch
-git merge
+git merge papyri/master
+git status
+
+cd ../xWalk
+git clean -fd
+git checkout .
+git fetch
+git merge papyri/xwalk
+git merge papyri/master
+git push papyri xwalk_piccolo:xwalk
+git status
 ```
 
-get HGV ids, get geo refs, call transformation script
+(2) get HGV ids and geo refs, and call transformation script
 
 ```bash
-java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getHgvId.xql > data/hgvId.xml hgvMetaEpiDoc=../data/master/HGV_meta_EpiDoc
-java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getPlaceRef.xql > data/placeRef.xml hgvMetaEpiDoc=../data/master/HGV_meta_EpiDoc
+cd xWalk
+java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getHgvId.xql > data/hgvId.xml hgvMetaEpiDoc=../data/idp.data/papyri/master/HGV_meta_EpiDoc
+java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getPlaceRef.xql > data/placeRef.xml hgvMetaEpiDoc=../data/idp.data/papyri/master/HGV_meta_EpiDoc
 java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:HGV.xml -it:FODS -xsl:xsl/xWalk.xsl HGV=data/HGV.fods
 ```
