@@ -63,16 +63,26 @@ git checkout .
 git fetch
 git merge papyri/xwalk
 git merge papyri/master
-git push papyri xwalk_piccolo:xwalk
+git push papyri xwalk_papy:xwalk
 git status
 ```
 
-(2) get HGV ids and geo refs, and call transformation script
+(2) get HGV ids
 
 ```bash
 cd xWalk
 java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getHgvId.xql > data/hgvId.xml hgvMetaEpiDoc=../data/idp.data/papyri/master/HGV_meta_EpiDoc
+```
+
+(3) get HGV geo refs
+
+```bash
 java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getPlaceRef.xql > data/placeRef.xml hgvMetaEpiDoc=../data/idp.data/papyri/master/HGV_meta_EpiDoc
+```
+
+(4) call transformation script
+
+```bash
 java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:data/HGV.xml -it:FODS -xsl:xsl/xWalk.xsl PROCESS=new
 java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:data/HGV.xml -it:FODS -xsl:xsl/xWalk.xsl PROCESS=modified
 java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:data/HGV.xml -it:FODS -xsl:xsl/xWalk.xsl PROCESS=all
