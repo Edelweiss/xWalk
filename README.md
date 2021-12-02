@@ -39,6 +39,13 @@ place FODS file in the data directory of the xWalk project and run script
 * move FODS file to xWalk/data/HGV.fods
 * run xWalk script ```./xWalk.sh```
 
+```bash
+./xWalk.sh new
+./xWalk.sh modified
+./xWalk.sh all
+```
+(defaults to ```all```)
+
 The xWalk script peforms the following actions, which can also be started manually:
 
 (1) update git repository branches papyri/master and papyri/xWalk
