@@ -251,25 +251,26 @@
         </list>
         </div>
         </xsl:if>
-        <div type="bibliography" subtype="principalEdition">
-          <listBibl>
-            <!-- call to publication template which resides in publication.xsl -->
-            <xsl:call-template name="publication">
-              <xsl:with-param  name="Publikation" select="$data[1]//tei:cell[@name='publication']" />
-              <xsl:with-param  name="Band"        select="$data[1]//tei:cell[@name='volume']" />
-              <xsl:with-param  name="ZusBand"     select="$data[1]//tei:cell[@name='volume_extra']" />
-              <xsl:with-param  name="Nummer"      select="$data[1]//tei:cell[@name='number']" />
-              <xsl:with-param  name="Seite"       select="$data[1]//tei:cell[@name='side']" />
-              <xsl:with-param  name="zusatzlich"  select="$data[1]//tei:cell[@name='number_extra']" />
-            </xsl:call-template>
-          </listBibl>
-        </div>
+
+          <div type="bibliography" subtype="principalEdition">
+            <listBibl>
+              <!-- call to publication template which resides in publication.xsl -->
+              <xsl:call-template name="publication">
+                <xsl:with-param  name="Publikation" select="$data[1]//tei:cell[@name='publication']" />
+                <xsl:with-param  name="Band"        select="$data[1]//tei:cell[@name='volume']" />
+                <xsl:with-param  name="ZusBand"     select="$data[1]//tei:cell[@name='volume_extra']" />
+                <xsl:with-param  name="Nummer"      select="$data[1]//tei:cell[@name='number']" />
+                <xsl:with-param  name="Seite"       select="$data[1]//tei:cell[@name='side']" />
+                <xsl:with-param  name="zusatzlich"  select="$data[1]//tei:cell[@name='number_extra']" />
+              </xsl:call-template>
+            </listBibl>
+          </div>
 
           <div type="bibliography" subtype="illustrations">
             <p>
               <xsl:variable name="Abbildung" select="$data[1]//tei:cell[@name='published_photo']"/>
               <xsl:choose>
-                <xsl:when test="$Abbildung = 'keine'">
+                <xsl:when test="$Abbildung = ('keine', '')">
                   <xsl:text>keine</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
@@ -283,21 +284,77 @@
             </p>
           </div>
 
-<xsl:variable name="otherPublications" select="$data[1]//tei:cell[@name='other_publication']"/>
-              <xsl:if test="string($otherPublications)">
-                <div type="bibliography" subtype="otherPublications">
-                  <head>
-                    <xsl:text>Andere Publikation</xsl:text>
-                    <xsl:if test="contains($otherPublications, ';')">
-                      <xsl:text>en</xsl:text>
+          <xsl:variable name="otherPublications" select="$data[1]//tei:cell[@name='other_publication']"/>
+          <xsl:if test="string($otherPublications)">
+            <div type="bibliography" subtype="otherPublications">
+              <head>
+                <xsl:text>Andere Publikation</xsl:text>
+                <xsl:if test="contains($otherPublications, ';')">
+                  <xsl:text>en</xsl:text>
+                </xsl:if>
+              </head>
+              <xsl:call-template name="list-bibl">
+                <xsl:with-param name="bibl-raw" select="$otherPublications"/>
+                <xsl:with-param name="type" select="'A-Pub'"/>
+              </xsl:call-template>
+            </div>
+          </xsl:if>
+
+          <xsl:variable name="Ubersetz" select="$data[1]//tei:cell[@name='translations']"/>
+          <xsl:if test="string($Ubersetz)">
+            <div type="bibliography" subtype="translations">
+              <head xml:lang="de">Übersetzungen</head>
+              
+              <!-- Divides the string at »:« (mask »in:« as »_IN_«) -->
+              <xsl:variable name="langs" select="tokenize(replace($Ubersetz, 'in:', '_IN_'), ':')"/>
+              
+              <xsl:for-each select="$langs">
+                <xsl:if test="not(position() = 1)">
+                  <xsl:variable name="pos" select="position() - 1"/>
+                  <!-- language that is currently being processed -->
+                  <xsl:variable name="lang-name">
+                    <xsl:for-each select="tokenize($langs[$pos], ' ')">
+                      <xsl:if test="position() = last()">
+                        <xsl:value-of select="."/>
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:variable>
+                  <xsl:variable name="lang-type" select="$languages/hgv:language[@hgv:de=$lang-name]/@hgv:iso" />
+                  
+                  <xsl:variable name="translations">
+                    <xsl:choose>
+                      <xsl:when test="position() = last()">
+                        <xsl:value-of select="."/>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:value-of select="replace(., ' [A-Za-zÄÖÜäöüß]+$', '')"/>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </xsl:variable>
+                  
+                  <listBibl>
+                    <!-- Attributes xml:lang -->
+                    <xsl:if test="$lang-type">
+                      <xsl:attribute name="xml:lang">
+                        <xsl:value-of select="$lang-type"/>
+                      </xsl:attribute>
                     </xsl:if>
-                  </head>
-                  <xsl:call-template name="list-bibl">
-                    <xsl:with-param name="bibl-raw" select="$otherPublications"/>
-                    <xsl:with-param name="type" select="'A-Pub'"/>
-                  </xsl:call-template>
-                </div>
-              </xsl:if>
+
+                    <!-- Headings of the language -->  
+                    <head xml:lang="de"><xsl:value-of select="$lang-name"/> <xsl:text>:</xsl:text></head>
+
+                    <!-- Bibliographic content -->
+                    <xsl:for-each select="tokenize(normalize-space(replace($translations, '_IN_', 'in:')), ';')"><!-- unmask »_IN_« back to »in:« -->
+                      <bibl type="translations">
+                        <xsl:value-of select="normalize-space(.)"/>
+                      </bibl>
+                    </xsl:for-each>
+                    
+                  </listBibl>
+                </xsl:if>
+              </xsl:for-each>
+            </div>
+          </xsl:if>
           
           <xsl:variable name="imageLink" select="$data[1]//tei:cell[@name='image_link']"/>
           <xsl:if test="string($imageLink)">
@@ -367,6 +424,5 @@
       </change>
     </xsl:if>
   </xsl:template>
-
 
 </xsl:stylesheet>
