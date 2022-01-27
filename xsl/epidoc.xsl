@@ -20,7 +20,7 @@
   <xsl:include href="mentionedDates.xsl"/>
   <xsl:include href="publication.xsl"/>
   <xsl:include href="global.xsl"/>
-  
+
   <xsl:template name="papy:hgvEpidoc">
     <xsl:param name="hgv"/>
     <xsl:param name="data"/>
@@ -79,7 +79,7 @@
                     </xsl:if>
                   </xsl:when>
                   <xsl:otherwise>
-                    <placeName><settlement><xsl:text>unbekannt</xsl:text></settlement></placeName>                    
+                    <placeName><settlement><xsl:text>unbekannt</xsl:text></settlement></placeName>
                   </xsl:otherwise>
                 </xsl:choose>
               </msIdentifier>
@@ -162,7 +162,6 @@
                       <xsl:with-param name="unsicher" select="$record//tei:cell[@name='uncertain']"/>
                       <xsl:with-param name="context" select="'origin'"/>
                       <xsl:with-param name="date-id" select="$record//tei:cell[@name='multiple_letter']"/>
-                      
                     </xsl:call-template>
                   </xsl:for-each>
                 </origin>
@@ -190,9 +189,21 @@
           <xsl:if test="string($content)">
             <textClass>
               <keywords scheme="hgv">
-                <xsl:for-each select="tokenize($content, ', ?')">
+                <!--xsl:for-each select="tokenize($content, ', ?')">
                   <term><xsl:value-of select="normalize-space(.)"/></term>
-                </xsl:for-each>
+                </xsl:for-each-->
+                <xsl:analyze-string regex="((\(\?\) )?[^,\(\)]+( ?\([^\)]+\))( \(\?\))?|[^,\(\)]+)" select="$content">
+                  <xsl:matching-substring>
+                    <term><xsl:value-of select="normalize-space(.)"/></term>
+                    <!--xsl:message select="concat('... ', normalize-space(.))"/-->
+                  </xsl:matching-substring>
+                  <xsl:non-matching-substring>
+                    <xsl:if test="not(matches(normalize-space(.), '^[,.]+$'))">
+                      <xsl:message select="concat('Non matching content of keywords: ', normalize-space(.))"/>
+                    </xsl:if>
+                    <!--xsl:value-of select="."/-->
+                  </xsl:non-matching-substring>
+                </xsl:analyze-string>
               </keywords>
             </textClass>
           </xsl:if>
@@ -304,10 +315,10 @@
           <xsl:if test="string($Ubersetz)">
             <div type="bibliography" subtype="translations">
               <head xml:lang="de">Übersetzungen</head>
-              
+
               <!-- Divides the string at »:« (mask »in:« as »_IN_«) -->
               <xsl:variable name="langs" select="tokenize(replace($Ubersetz, 'in:', '_IN_'), ':')"/>
-              
+
               <xsl:for-each select="$langs">
                 <xsl:if test="not(position() = 1)">
                   <xsl:variable name="pos" select="position() - 1"/>
@@ -320,7 +331,7 @@
                     </xsl:for-each>
                   </xsl:variable>
                   <xsl:variable name="lang-type" select="$languages/hgv:language[@hgv:de=$lang-name]/@hgv:iso" />
-                  
+
                   <xsl:variable name="translations">
                     <xsl:choose>
                       <xsl:when test="position() = last()">
@@ -331,7 +342,7 @@
                       </xsl:otherwise>
                     </xsl:choose>
                   </xsl:variable>
-                  
+
                   <listBibl>
                     <!-- Attributes xml:lang -->
                     <xsl:if test="$lang-type">
@@ -340,7 +351,7 @@
                       </xsl:attribute>
                     </xsl:if>
 
-                    <!-- Headings of the language -->  
+                    <!-- Headings of the language -->
                     <head xml:lang="de"><xsl:value-of select="$lang-name"/> <xsl:text>:</xsl:text></head>
 
                     <!-- Bibliographic content -->
@@ -349,13 +360,13 @@
                         <xsl:value-of select="normalize-space(.)"/>
                       </bibl>
                     </xsl:for-each>
-                    
+
                   </listBibl>
                 </xsl:if>
               </xsl:for-each>
             </div>
           </xsl:if>
-          
+
           <xsl:variable name="imageLink" select="$data[1]//tei:cell[@name='image_link']"/>
           <xsl:if test="string($imageLink)">
             <div type="figure">
