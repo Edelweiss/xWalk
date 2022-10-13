@@ -35,7 +35,7 @@ java -Xms512m -Xmx1536m net.sf.saxon.Transform -l -o:data/HGV.xml -it:FODS -xsl:
     <xsl:param name="IDP_MASTER" select="concat($DATA_DIRECTORY, '/idp.data/papyri/master')"/>
     <xsl:param name="IDP_XWALK" select="concat($DATA_DIRECTORY, '/idp.data/papyri/xWalk')"/>
     <xsl:param name="FODS_DOCUMENT" select="concat($DATA_DIRECTORY, '/HGV.fods')"/>
-    <xsl:param name="FODS_TABLE" select="'hgv'"/>
+    <xsl:param name="FODS_TABLE" select="'HGV'"/>
     
     <xsl:param name="fileNomeList" select="concat($IDP_MASTER, '/HGV_metadata/XML_dump/nomeList.xml')"  as="xs:string"/> <!-- nome list lookup file -->
     <xsl:param name="placeRef" select="'../data/placeRef.xml'"  as="xs:string"/>
