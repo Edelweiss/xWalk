@@ -27,12 +27,12 @@ echo '................'
 
 # fetch hgv id
 echo 'Fetch HGV ids...'
-#java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getHgvId.xql > data/hgvId.xml hgvMetaEpiDoc=../data/idp.data/papyri/master/HGV_meta_EpiDoc
+java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getHgvId.xql > data/hgvId.xml hgvMetaEpiDoc=../data/idp.data/papyri/master/HGV_meta_EpiDoc
 echo '................'
 
 # fetch geo refs
 echo 'Fetch geo references...'
-#java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getPlaceRef.xql > data/placeRef.xml hgvMetaEpiDoc=../data/idp.data/papyri/master/HGV_meta_EpiDoc
+java -Xms512m -Xmx1536m net.sf.saxon.Query -q:xql/getPlaceRef.xql > data/placeRef.xml hgvMetaEpiDoc=../data/idp.data/papyri/master/HGV_meta_EpiDoc
 echo '................'
 
 # run xWalk
