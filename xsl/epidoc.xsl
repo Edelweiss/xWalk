@@ -28,7 +28,7 @@
     <!--xsl:processing-instruction name="oxygen ">
           RNGSchema="http://www.stoa.org/epidoc/schema/latest/tei-epidoc.rng" type="xml" </xsl:processing-instruction-->
     <xsl:processing-instruction name="xml-model ">
-           href="http://www.stoa.org/epidoc/schema/8.13/tei-epidoc.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0" </xsl:processing-instruction>
+           href="https://epidoc.stoa.org/schema/8.16/tei-epidoc.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0" </xsl:processing-instruction>
     <TEI xml:id="hgv{$hgv}">
       <teiHeader>
         <fileDesc>
